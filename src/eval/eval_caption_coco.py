@@ -29,12 +29,18 @@ parser.add_argument("--save_result", type=bool, help="Whether to save the eval r
 args = parser.parse_args()
 output_file = args.output_file
 save_result = args.save_result
+num_samples = args.num_samples
 # Load the output file
 response = json.load(open(os.path.join(settings.output_dir, output_file)))
 
+files = os.listdir(os.path.join(settings.data_dir, "coco/images/val2017"))[:num_samples]
 # Calculate similarity
 sim_scores = {}
-for filename, predicted_caption in response.items():
+for filename in files:
+    predicted_caption = response.get(filename, None)
+    if predicted_caption is None:
+        print(f"Predicted caption for {filename} is not found.")
+        continue
     caption = get_caption(filename)
     similarity = calculate_similarity(caption, predicted_caption)
     sim_scores[get_url(filename)] = similarity
