@@ -1,7 +1,7 @@
 import json
 
-captions_path = "/usr/prakt/s0070/vlm-based-image-search/data/coco/annotations/captions_val2017.json"
-# instances_path = "/usr/prakt/s0070/vlm-based-image-search/data/coco/annotations/instances_val2017.json"
+captions_path = "../../data/coco/annotations/captions_val2017.json"
+# instances_path = "../../data/coco/annotations/instances_val2017.json"
 
 captions = json.load(open(captions_path))
 # instances = json.load(open(instances_path))
