@@ -5,7 +5,7 @@ import sys
 sys.path.append("../")
 
 from eval.text_similarity import calculate_similarity
-from data.coco import get_caption, get_url
+from data.coco import get_captions, get_url
 from services.settings import settings
 
 # Assumptions
@@ -41,9 +41,12 @@ for filename in files:
     if predicted_caption is None:
         print(f"Predicted caption for {filename} is not found.")
         continue
-    caption = get_caption(filename)
-    similarity = calculate_similarity(caption, predicted_caption)
-    sim_scores[get_url(filename)] = similarity
+    captions = get_captions(filename)
+    
+    similarity = 0
+    for caption in captions:
+        similarity += calculate_similarity(caption, predicted_caption)
+    sim_scores[get_url(filename)] = similarity/len(captions)
     
 # Calculate the average similarity
 average_similarity = sum(sim_scores.values()) / len(sim_scores)

@@ -13,9 +13,17 @@ captions = json.load(open(captions_path))
 # instances = json.load(open(instances_path))
 
 filename_id_dict = {image["file_name"]: image["id"] for image in captions["images"]}
-id_caption_dict = {image["image_id"]: image["caption"] for image in captions["annotations"]}
 
-def get_caption(image_filename):
+id_caption_dict = {}
+for image in captions["annotations"]:
+    image_id = image["image_id"]
+    caption = image["caption"]
+    if image_id in id_caption_dict:
+        id_caption_dict[image_id].append(caption)
+    else:
+        id_caption_dict[image_id] = [caption]
+
+def get_captions(image_filename):
     image_id = filename_id_dict[image_filename]
     return id_caption_dict[image_id]
 
