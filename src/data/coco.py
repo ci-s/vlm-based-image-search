@@ -1,5 +1,6 @@
 import json
 import os
+import random
 import sys
 
 sys.path.append("../")
@@ -29,3 +30,14 @@ def get_captions(image_filename):
 
 def get_url(image_filename):
     return coco_url_prefix + image_filename
+
+# gt = ground truth
+def create_gt_captions_dict(files, mode): 
+    # To handle multiple captions in COCO, select a method
+    match mode:
+        case 'concat':
+            return {file: ' '.join(get_captions(file)) for file in files}
+        case 'random':
+            return {file: random.choice(get_captions(file)) for file in files}
+        case 'first':
+            return {file: get_captions(file)[0] for file in files}
