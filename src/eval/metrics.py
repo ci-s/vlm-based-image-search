@@ -23,15 +23,19 @@ class Metrics:
     @staticmethod
     def mean_average_precision(precisions: List[float]) -> float:
         return sum(precisions) / len(precisions)
-    
+
     @staticmethod
-    def mrr(predictions: List[Any], ground_truth: List[Any]) -> float:
+    def mrr(predictions_list: List[Any], ground_truth_list: List[Any]) -> float:
         # Mean Reciprocal Rank
-        rankings = []
-        for i, prediction in enumerate(predictions):
-            if prediction in ground_truth:
-                rankings.append(1 / (i + 1))
-        return sum([1/ranking for ranking in rankings]) / len(rankings)
+        mrr_total = 0.0
+        num_queries = len(predictions_list)
+        
+        for predictions, ground_truth in zip(predictions_list, ground_truth_list):
+            for i, prediction in enumerate(predictions):
+                if prediction in ground_truth:
+                    mrr_total += 1 / (i + 1)
+                    break
+        return mrr_total / num_queries if num_queries > 0 else 0.0
 
     @staticmethod
     def calculate_relevance_scores(predictions, ground_truth):
