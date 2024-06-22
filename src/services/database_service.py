@@ -3,6 +3,7 @@ import torch
 import json
 import sys
 import os
+import requests
 
 
 sys.path.append("../../outputs")
@@ -10,7 +11,8 @@ img_index_suffix_def = "_images.index"
 text_embd_suffix_def= "_texts_emb.pth"
 caption_suffix_def = "_captions.pth"
 path_prefix_def = "../../outputs/"
-
+url_nocaps_json= "https://nocaps.s3.amazonaws.com/nocaps_val_4500_captions.json", 
+to_nocaps_dir = "../../data/val_nocaps"
 
 class DatabaseService:
     def __init__(self, dataset_n, path_prefix = None, img_index_suffix = None, text_embd_suffix = None, caption_suffix = None):
@@ -24,9 +26,9 @@ class DatabaseService:
         if caption_suffix is None:
             caption_suffix = caption_suffix_def
             
-        self.img_index_path = path_prefix + "_" + self.db + img_index_suffix
-        self.text_embd_path = path_prefix + "_" + self.db + text_embd_suffix
-        self.caption_path = path_prefix + "_" + self.db + caption_suffix
+        self.img_index_path = path_prefix + self.db + "_"+ img_index_suffix
+        self.text_embd_path = path_prefix + self.db + "_"+ text_embd_suffix
+        self.caption_path = path_prefix + self.db + "_"+ caption_suffix
     
     def _get_img_index_path(self):
         return self.img_index_path
@@ -37,7 +39,8 @@ class DatabaseService:
     def _get_caption_path(self):
         return self.caption_path
     
-    def create_index(self, embedding):
+    
+    def create_index(embedding):
         index = faiss.IndexFlatIP(embedding.shape[1])
         index.add(embedding.cpu())
         print(f"Index is created with {index.ntotal} embeddings")
@@ -89,6 +92,10 @@ class DatabaseService:
         if captions_path is None:
             captions_path = self._get_caption_path()
         return torch.load(captions_path, map_location=torch.device(device))
+    
+
+        
+        
     
     
 
