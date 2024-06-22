@@ -12,7 +12,7 @@ class ImageCaptions:
         captions (List[str]): A list of captions.
 
     Methods:
-        __init__(self, filename_caption_dict: Dict[str, str | List[str]], url_suffix: str | None) -> None: Initializes the ImageCaptions object.
+        __init__(self, filename_caption_dict: Dict[str, str | List[str]], url_prefix: str | None) -> None: Initializes the ImageCaptions object.
         get_filenames(self, indices: List[int] = None) -> List[str]: Returns a list of filenames.
         get_captions(self, indices: List[int] = None) -> List[str]: Returns a list of captions.
         get_urls(self, indices: List[int] = None) -> List[str]: Returns a list of URLs corresponding to the filenames.
@@ -52,11 +52,11 @@ class ImageCaptions:
         return self.filename_caption_dict.get(filename, None)
 
     def get_urls(self, indices: List[int] = None) -> List[str]:
-        if self.url_suffix is None:
+        if self.url_prefix is None:
             raise ValueError("URL prefix is not set.")
         if indices is None:
-            return [self.url_suffix + filename for filename in self.filenames]
-        return [self.url_suffix + self.filenames[i] for i in indices]
+            return [self.url_prefix + filename for filename in self.filenames]
+        return [self.url_prefix + self.filenames[i] for i in indices]
     
 
 class SearchService:
