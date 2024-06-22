@@ -72,6 +72,6 @@ class SearchService:
         D, I = self.faiss_service.search_index(query, self.k)
         
         if return_url:
-            return self.image_captions.get_urls(I[0])[::-1] # Reverse the order
+            return self.image_captions.get_urls(I[0])
         else:
-            return self.image_captions.get_filenames(I[0])[::-1] # Reverse the order
+            return self.image_captions.get_filenames(I[0])
