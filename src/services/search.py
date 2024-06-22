@@ -17,7 +17,7 @@ class ImageCaptions:
         get_captions(self, indices: List[int] = None) -> List[str]: Returns a list of captions.
         get_urls(self, indices: List[int] = None) -> List[str]: Returns a list of URLs corresponding to the filenames.
     """
-    def __init__(self, filename_caption_dict: Dict[str, str], url_suffix: str | None = None) -> None:
+    def __init__(self, filename_caption_dict: Dict[str, str], url_prefix: str | None = None) -> None:
         """
         filename_caption_dict is a dictionary with the following structure:
         {
@@ -30,7 +30,7 @@ class ImageCaptions:
         self.filenames = list(self.filename_caption_dict.keys())
         self.captions = list(self.filename_caption_dict.values())
         
-        self.url_suffix = url_suffix
+        self.url_prefix = url_prefix
         
     def get_filenames(self, indices: List[int] = None) -> List[str]:
         if indices is None:
@@ -53,7 +53,7 @@ class ImageCaptions:
 
     def get_urls(self, indices: List[int] = None) -> List[str]:
         if self.url_suffix is None:
-            raise ValueError("URL suffix is not set.")
+            raise ValueError("URL prefix is not set.")
         if indices is None:
             return [self.url_suffix + filename for filename in self.filenames]
         return [self.url_suffix + self.filenames[i] for i in indices]
