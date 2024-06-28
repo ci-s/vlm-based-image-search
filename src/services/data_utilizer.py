@@ -14,7 +14,7 @@ path_prefix_def = "../../outputs/"
 url_nocaps_json= "https://nocaps.s3.amazonaws.com/nocaps_val_4500_captions.json", 
 to_nocaps_dir = "../../data/val_nocaps"
 
-class DatabaseService:
+class DataUtilizer:
     def __init__(self, dataset_n, path_prefix = None, img_index_suffix = None, text_embd_suffix = None, caption_suffix = None):
         self.db = dataset_n
         if path_prefix is None:

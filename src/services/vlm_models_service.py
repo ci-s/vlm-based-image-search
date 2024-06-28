@@ -1,7 +1,7 @@
 from abc import abstractmethod, ABC
 from open_clip import create_model_from_pretrained, get_tokenizer
 import torch
-from transformers import LlavaNextProcessor, LlavaNextForConditionalGeneration, BitsAndBytesConfig
+from transformers import LlavaNextProcessor, LlavaNextForConditionalGeneration
 from sentence_transformers import SentenceTransformer
 from langchain.output_parsers import PydanticOutputParser
 from langchain.pydantic_v1 import BaseModel, Field
@@ -16,12 +16,6 @@ sys.path.append("../")
 class Caption(BaseModel):
     caption: str = Field(description="Caption of the image")
 parser = PydanticOutputParser(pydantic_object=Caption)
-quantization_config = BitsAndBytesConfig(
-    load_in_4bit=True,
-    bnb_4bit_quant_type="fp4",  # Ensure this is the correct quant type for your use case
-    bnb_4bit_use_double_quant=True,
-    bnb_4bit_compute_dtype=torch.float16
-)
 
 
 model_parameters_default = {
@@ -31,8 +25,7 @@ model_parameters_default = {
                     "Llava" : {"models_id" : "llava-hf/llava-v1.6-mistral-7b-hf",
                                "prompt" : """[INST] <image>\nWrite a caption for the photo. Consider the output template when you respond. Do not generate anything else. Here is the output template:
                                             {"caption": "short description of the photo"} Take a deep breath and answer only with a JSON. [/INST]""",
-                                "max_new_tokens" : 200,
-                                "quantization_config" : quantization_config}}
+                                "max_new_tokens" : 200}}
 
 class BaseVLM(ABC):
     def __init__(self, model_name, model_parameters = None):
@@ -108,9 +101,9 @@ class BaseVLM(ABC):
         
         image_encodings = []
         
-        for images, _ in tqdm(dataloader, desc="Embedding"):
+        for images in tqdm(dataloader, desc="Embedding"):
             images = images.to(self.device)
-            image_encodings.append(self._process_images())
+            image_encodings.append(self._process_images(images))
                         
         image_encodings = torch.cat(image_encodings)
         image_encodings = image_encodings / image_encodings.norm(dim=-1, keepdim=True)
@@ -131,7 +124,7 @@ class BaseVLM(ABC):
         return [texts[j][i] for i in range(len(texts[0])) for j in range(len(texts))]
     
     @torch.no_grad
-    def encode__texts(self, dataloader):
+    def encode_texts(self, dataloader):
         """
         Encode only texts from the dataloader.
         
@@ -144,11 +137,28 @@ class BaseVLM(ABC):
         
         text_encodings = []
         
-        for _, texts in tqdm(dataloader, desc="Embedding"):
+        for texts in tqdm(dataloader, desc="Embedding"):
             texts = self._flatten_texts(texts)
             text_encodings.append(self.text_model(texts))
             
         text_encodings = torch.cat(text_encodings)
+        text_encodings = text_encodings / text_encodings.norm(dim=-1, keepdim=True)
+        
+        return text_encodings
+    @torch.no_grad
+    def encode_text_list(self, caption_list):
+        """
+        Encode only texts from the dataloader.
+        
+        Parameters:
+        dataloader (torch.utils.data.DataLoader): DataLoader providing batches of texts.
+        
+        Returns:
+        torch.Tensor: Encoded texts.
+        """
+        
+        text_encodings = []
+        text_encodings = self.text_model(caption_list)            
         text_encodings = text_encodings / text_encodings.norm(dim=-1, keepdim=True)
         
         return text_encodings
@@ -275,18 +285,22 @@ class GITModel(CaptionModel):
         caption_list = [generated_captions[i] for i in range(len(generated_captions))]
         return caption_list
 
+class SearchModel:
+    def __init__(self, model_name):
+        if model_name == "CLIP":
+            self.model = CLIPModel("CLIP")
+            self.is_caption = False
+        elif model_name == "Llava":
+            self.model = LlavaModel("Llava")
+            self.is_caption = True
+        elif model_name == "GIT":
+            self.model = LlavaModel("GIT")
+            self.is_caption = True
+        else:
+            raise ValueError("model names should be CLIP, Llava or GIT")
     
+    def is_clip(self):
+        return self.is_caption
 
-        
-    
-    
-    
-        
-
-
-
-         
-
-        
-        
-
+    def get_model(self):
+        return self.model
