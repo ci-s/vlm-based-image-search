@@ -61,17 +61,18 @@ class ImageCaptions:
 
 class SearchService:
     def __init__(
-        self, encoder_model: str, image_captions: ImageCaptions, k: int = 10
+        self, encoder_model: str, image_captions: ImageCaptions, k: int = 10, threshold: float | None = None
     ) -> None:
         self.faiss_service = FaissService(encoder_model)
         self.image_captions = image_captions
         self.faiss_service.create_index(self.image_captions.get_captions())
         self.k = k
+        self.threshold = threshold
 
     def search(self, query: str, return_url: bool = False) -> List[str]:
-        D, I = self.faiss_service.search_index(query, self.k)
+        D, I = self.faiss_service.search_index(query, self.k, self.threshold)
         
         if return_url:
-            return self.image_captions.get_urls(I[0])
+            return self.image_captions.get_urls(I) # TODO
         else:
-            return self.image_captions.get_filenames(I[0])
+            return self.image_captions.get_filenames(I) # TODO
