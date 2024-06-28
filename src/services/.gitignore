@@ -1,0 +1,4 @@
+# Environments
+.env
+# Pre-compiled files
+__pycache__/
