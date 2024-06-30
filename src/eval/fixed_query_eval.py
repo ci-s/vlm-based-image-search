@@ -27,10 +27,12 @@ gt_image_captions = ImageCaptions(gt_dict)
 encoder_model_name = 'sentence-transformers/all-MiniLM-L6-v2'
 
 # Search
-ss = SearchService(encoder_model_name, predicted_image_captions) # Important: This should be modified for CLIP
+k = 10
+threshold = 0.3
+ss = SearchService(encoder_model_name, predicted_image_captions, threshold=threshold) # Important: This should be modified for CLIP
 
 # Get ground truth
-gt_ss = SearchService(encoder_model_name, gt_image_captions)
+gt_ss = SearchService(encoder_model_name, gt_image_captions, threshold=threshold)
 
 print("Evaluating the model...")
 query_list = ["birthday cake", # an object
@@ -44,13 +46,14 @@ performance_dict = {"recall": [], "precision": [], "f1": [], "nDCG": [], "mRR": 
 for query in query_list:
     retrieved_files = ss.search(query)
     gt_retrieved_files = gt_ss.search(query)
-    
+    print(f"The number of files predicted: {len(retrieved_files)}")
+    print(f"The number of files in the ground truth: {len(gt_retrieved_files)}")
     performance_dict["recall"].append(Metrics.recall(retrieved_files, gt_retrieved_files))
     performance_dict["precision"].append(Metrics.precision(retrieved_files, gt_retrieved_files))
     performance_dict["f1"].append(Metrics.f1_score(retrieved_files, gt_retrieved_files))
     performance_dict["nDCG"].append(Metrics.ndcg(retrieved_files, gt_retrieved_files, 5)) #TODO:parametrize
     performance_dict["mRR"].append(Metrics.mrr(retrieved_files, gt_retrieved_files))
 
-
+print(performance_dict)
 for metric, values in performance_dict.items():
     print(f"{metric}: {sum(values)/len(values):.2f}")
