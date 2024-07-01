@@ -4,7 +4,26 @@ from torchvision import transforms
 from open_clip import create_model_from_pretrained
 from torch.utils.data import Subset
 import random
+import os
 
+
+class CocoDetectionWithFilename(CocoCaptions):
+    def __init__(self, root, annFile, transform=None, target_transform=None):
+        super(CocoDetectionWithFilename, self).__init__(root, annFile, transform, target_transform)
+    
+    def get_filename(self, idx):
+        img_info = self.coco.loadImgs(self.ids[idx])[0]
+        filename = img_info['file_name']
+        return os.path.join(self.root, filename)
+    def get_image_url(self, idx):
+        img_info = self.coco.loadImgs(self.ids[idx])[0]
+        if 'coco_url' in img_info:
+            return img_info['coco_url']
+        else:
+            raise KeyError("No 'coco_url' field found in the image info!")
+
+
+random.seed(42)
 model_id = "hf-hub:apple/DFN5B-CLIP-ViT-H-14-384"
 
 _, clip_processor = create_model_from_pretrained(model_id)
@@ -35,7 +54,7 @@ def get_cocos_like_dataset(img_transform, text_tokenize, captions_per_img,
     if img_transform is None:
         img_transform = lambda images : transforms.ToTensor()(images)
             
-    dataset = CocoCaptions(
+    dataset = CocoDetectionWithFilename(
         root = img_root,
         annFile = ann_root,
         transform = img_transform,
