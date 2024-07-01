@@ -110,3 +110,10 @@ class SearchService:
         else:
             return self.image_representations.get_filenames(I)
 
+    def search_and_caption(self, query: str, return_url: bool = False) -> List[str]:
+        D, I = self.faiss_service.search_index(query, self.k, self.threshold)
+        
+        if return_url:
+            return self.image_representations.get_urls(I), self.image_representations.get_representations(I)
+        else:
+            return self.image_representations.get_filenames(I), self.image_representations.get_representations(I)
