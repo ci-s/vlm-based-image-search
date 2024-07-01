@@ -294,7 +294,7 @@ class SearchModel:
             self.model = LlavaModel("Llava")
             self.is_caption = True
         elif model_name == "GIT":
-            self.model = LlavaModel("GIT")
+            self.model = GITModel("GIT")
             self.is_caption = True
         else:
             raise ValueError("model names should be CLIP, Llava or GIT")
