@@ -3,6 +3,7 @@ from torchvision.datasets import CocoCaptions
 from torchvision import transforms
 from open_clip import create_model_from_pretrained
 from torch.utils.data import Subset
+import random
 
 model_id = "hf-hub:apple/DFN5B-CLIP-ViT-H-14-384"
 
@@ -25,8 +26,10 @@ def get_cocos_like_dataset(img_transform, text_tokenize, captions_per_img,
             target_transform = lambda texts : texts[0]
         elif option == "concat":
             target_transform = lambda texts : [" ".join(texts)]
+        elif option == "random":
+            target_transform = lambda texts : texts[random.choice(range(captions_per_img))]
         else:
-            raise ValueError("option should be either all, first or concat")
+            raise ValueError("option should be either all, first, concat or random")
     else:
         target_transform = lambda texts :text_tokenize(texts[:captions_per_img])
     if img_transform is None:
@@ -63,6 +66,3 @@ def load_cocos_like_dataset_in_range(captions_per_img, model_name, img_root = No
     img_transform = get_image_pretransformer(model_name)
     dataset = get_cocos_like_dataset(img_transform, None, captions_per_img, img_root, ann_root, option = option)
     return Subset(dataset, list(range(start_index, last_index)))
-
-
-
