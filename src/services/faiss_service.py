@@ -1,30 +1,38 @@
 import faiss
-from sentence_transformers import SentenceTransformer
+from typing import Any, List
 
 class FaissService:
-    def __init__(self, encoder_model):
-        self.encoder_model = SentenceTransformer(encoder_model)
+    def __init__(self, encoder_model): # encoder_model is either an instance of SentenceTransformer or CLIP or None = because directly query embeddings will be provided to search with
+        if encoder_model is not None:
+            self.encoder_model = encoder_model
+        else:
+            self.encoder_model = None
         self.index = None
 
     def _encode_sentences(self, sentences):
         sentence_embeddings = self.encoder_model.encode(sentences, normalize_embeddings=True)
         return sentence_embeddings
 
-    def create_index(self, sentences):
-        if sentences is None:
-            raise ValueError("Sentences cannot be None")
-        
-        sentence_embeddings = self._encode_sentences(sentences)
-        d = sentence_embeddings.shape[1]
+    def create_index(self, image_representation: List[Any]):
+        if image_representation is None:
+            raise ValueError("Image representations cannot be None")
+        if isinstance(image_representation, List) and isinstance(image_representation[0], str):
+            image_embeddings = self._encode_sentences(image_representation)
+        else:
+            image_embeddings = image_representation
+        d = image_embeddings.shape[1]
         index = faiss.IndexFlatIP(d) #TODO: parametrize
-        index.add(sentence_embeddings)
+        index.add(image_embeddings)
         print("Index created with {} sentences".format(index.ntotal))
         self.index = index
         return self.index
 
     def search_index(self, query, k, threshold=None, increment_factor=2):
         
-        query_embedding = self._encode_sentences([query])
+        if isinstance(query, str):
+            query_embedding = self._encode_sentences([query])
+        else:
+            query_embedding = query
         
         if not threshold: # return k results
             print("Returning top k results...")
