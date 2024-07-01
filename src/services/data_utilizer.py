@@ -40,7 +40,7 @@ class DataUtilizer:
         return self.caption_path
     
     
-    def create_index(embedding):
+    def create_index(self, embedding):
         index = faiss.IndexFlatIP(embedding.shape[1])
         index.add(embedding.cpu())
         print(f"Index is created with {index.ntotal} embeddings")
