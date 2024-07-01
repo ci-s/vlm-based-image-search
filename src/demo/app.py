@@ -12,10 +12,10 @@ from services.settings import settings
 
 coco_path = os.path.join(settings.data_dir, "coco/images/val2017/")
 
-llava_caption_path = "/usr/prakt/s0070/vlm-based-image-search/outputs/response_dict.json" # format-> filename:caption #TODO: Create one for git too
+llava_caption_path = os.path.join(settings.output_dir, "response_dict.json") # format-> filename:caption #TODO: Create one for git too
 llava_predicted_file = json.load(open(llava_caption_path))
 
-llava_image_representions = ImageRepresentations(filenames=list(llava_predicted_file.keys()), representations=list(predicted_file.values()), url_prefix="http://images.cocodataset.org/val2017/")
+llava_image_representions = ImageRepresentations(filenames=list(llava_predicted_file.keys()), representations=list(llava_predicted_file.values()), url_prefix="http://images.cocodataset.org/val2017/")
 encoder_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 
 llava_ss = SearchService(image_representations=llava_image_representions, encoder_model=encoder_model, k=10) #threshold=0.3
