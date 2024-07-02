@@ -35,7 +35,7 @@ class CocosCaptionDataset(Dataset):
         self.captions = get_captions_from_dataset(model_name, captions_per_img, img_root, ann_root, option)
     def __len__(self):
         return len(self.captions)
-    def __get_item__(self, idx):
+    def __getitem__(self, idx):
         return self.captions[idx]
     def get_captions_in_range(self, start_index = 0, end_index = 500):
         return self.captions[start_index:end_index]
