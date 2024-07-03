@@ -14,7 +14,7 @@ class CocoDetectionWithFilename(CocoCaptions):
     def get_filename(self, idx):
         img_info = self.coco.loadImgs(self.ids[idx])[0]
         filename = img_info['file_name']
-        return os.path.join(self.root, filename)
+        return filename
     def get_image_url(self, idx):
         img_info = self.coco.loadImgs(self.ids[idx])[0]
         if 'coco_url' in img_info:

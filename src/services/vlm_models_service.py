@@ -120,7 +120,8 @@ class BaseVLM(ABC):
         Returns:
         list of str: Flattened list of texts.
         """
-        
+        if isinstance(texts, tuple):
+            return [text for text in texts]
         return [texts[j][i] for i in range(len(texts[0])) for j in range(len(texts))]
     
     @torch.no_grad
