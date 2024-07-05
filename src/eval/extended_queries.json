@@ -1,0 +1,42 @@
+{
+    "categories": {
+      "object": [
+        "birthday cake",
+        "wooden chair",
+        "antique pocket watch",
+        "crystal wine glasses",
+        "vintage sofa"
+      ],
+      "action": [
+        "children throwing snowballs",
+        "kids playing in a park",
+        "artist painting",
+        "dogs chasing frisbees",
+        "people dancing at a party"
+        
+      ],
+      "objects_with_count": [
+        "two dogs",
+        "three red apples",
+        "five green chairs",
+        "four buildings",
+        "seven colorful balloons"
+      ],
+      "reasoning": [
+        "people getting ready to work",
+        "chefs trying new recipes",
+        "students studying in library",
+        "scientists conducting experiments",
+        "drivers stuck in traffic"
+        
+      ],
+      "text_on_image": [
+        "an invitation starting with dear",
+        "a banner that says thank you",
+        "a sign that says no parking",
+        "a person holding 5 euro note",
+        "a sign showing exit to the right"
+      ]
+    }
+  }
+  
