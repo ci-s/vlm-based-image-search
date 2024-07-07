@@ -6,6 +6,9 @@ import json
 import os
 import sys
 sys.path.append("../")
+sys.path.append(".")
+from services.data_utilizer import DataUtilizer
+from demo.clip import get_text_embedding
 
 from services.search import ImageRepresentations, SearchService
 from services.settings import settings
@@ -28,7 +31,15 @@ git_image_representions = ImageRepresentations(filenames=list(git_predicted_file
 git_ss = SearchService(image_representations=git_image_representions, encoder_model=encoder_model, k=10) # TODO
 
 # define another search service i.e for CLIP, change image representations
-clip_ss = SearchService(image_representations=llava_image_representions, encoder_model=encoder_model, k=10) # TODO
+clip_root = "/storage/group/dataset_mirrors/old_common_datasets/coco2017/coco_val17/val2017"
+clip_image_path = os.path.join(settings.output_dir, "image_mscoco_CLIP_500_first.pth")
+data_util = DataUtilizer("")
+clip_image_repr = data_util.load_texts_embeddings(clip_image_path).cpu()
+clip_filename_path = os.path.join(settings.output_dir, "filenames_clip.json")
+clip_filenames = data_util.load_json_file(clip_filename_path)
+clip_image_representations = ImageRepresentations(clip_filenames, clip_image_repr, url_prefix="http://images.cocodataset.org/val2017/")
+
+clip_ss = SearchService(image_representations=clip_image_representations, k=10) # TODO
 
 # We can customize this function to use different models
 def llava_search(query):
@@ -40,8 +51,8 @@ def git_search(query):
     return [(os.path.join(coco_path, file), caption) for file, caption in zip(retrieved_files, captions)]
 
 def clip_search(query):
-    retrieved_files = clip_ss.search(query, return_url=False)
-    return [(os.path.join(coco_path, file), None) for file in retrieved_files] # No captions for this option
+    retrieved_files = clip_ss.search(get_text_embedding([query]), return_url=False)
+    return [(os.path.join(clip_root, file), None) for file in retrieved_files] # No captions for this option
 
 def search(model_name, query):
     if model_name == "LLaVa":
