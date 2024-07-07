@@ -12,6 +12,7 @@ from services.settings import settings
 
 coco_path = os.path.join(settings.data_dir, "coco/images/val2017/")
 
+# LLAVA
 llava_caption_path = os.path.join(settings.output_dir, "response_dict.json") # format-> filename:caption #TODO: Create one for git too
 llava_predicted_file = json.load(open(llava_caption_path))
 
@@ -20,9 +21,14 @@ encoder_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 
 llava_ss = SearchService(image_representations=llava_image_representions, encoder_model=encoder_model, k=10) #threshold=0.3
 
+# GIT
+git_caption_path = os.path.join(settings.output_dir, "response_dict_git_500.json") 
+git_predicted_file = json.load(open(git_caption_path))
+git_image_representions = ImageRepresentations(filenames=list(git_predicted_file.keys()), representations=list(git_predicted_file.values()), url_prefix="http://images.cocodataset.org/val2017/")
+git_ss = SearchService(image_representations=git_image_representions, encoder_model=encoder_model, k=10) # TODO
+
 # define another search service i.e for CLIP, change image representations
 clip_ss = SearchService(image_representations=llava_image_representions, encoder_model=encoder_model, k=10) # TODO
-git_ss = SearchService(image_representations=llava_image_representions, encoder_model=encoder_model, k=10) # TODO
 
 # We can customize this function to use different models
 def llava_search(query):
