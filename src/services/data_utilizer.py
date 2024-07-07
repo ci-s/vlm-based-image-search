@@ -72,6 +72,11 @@ class DataUtilizer:
             result_path = self.db + "metrics.json"
         with open(result_path, 'w') as f:
             json.dump(results, f, indent=4)
+            
+    def load_json_file(self, file_path):
+        with open(file_path, "r") as f:
+            data = json.load(f)
+        return data    
 
     def is_img_embd_exists(self, index_path=None):
         if index_path is None:
