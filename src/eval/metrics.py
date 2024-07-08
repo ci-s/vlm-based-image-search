@@ -6,19 +6,23 @@ class Metrics:
     def recall(predictions: List[Any], ground_truth: List[Any]) -> float:
         true_positives = len(set(predictions) & set(ground_truth))
         false_negatives = len(set(ground_truth) - set(predictions))
+        if true_positives + false_negatives == 0:
+            return 0.0
         return true_positives / (true_positives + false_negatives)
 
     @staticmethod
     def precision(predictions: List[Any], ground_truth: List[Any]) -> float:
         true_positives = len(set(predictions) & set(ground_truth))
         false_positives = len(set(predictions) - set(ground_truth))
+        if true_positives + false_positives == 0:
+            return 0.0
         return true_positives / (true_positives + false_positives)
 
     @staticmethod
     def f1_score(predictions: List[Any], ground_truth: List[Any]) -> float:
         precision = Metrics.precision(predictions, ground_truth)
         recall = Metrics.recall(predictions, ground_truth)
-        if precision + recall  == 0:
+        if precision + recall == 0:
             return 0.0
         return 2 * (precision * recall) / (precision + recall)
     
