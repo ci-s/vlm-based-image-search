@@ -18,6 +18,8 @@ class Metrics:
     def f1_score(predictions: List[Any], ground_truth: List[Any]) -> float:
         precision = Metrics.precision(predictions, ground_truth)
         recall = Metrics.recall(predictions, ground_truth)
+        if precision + recall  == 0:
+            return 0.0
         return 2 * (precision * recall) / (precision + recall)
     
     @staticmethod
@@ -94,4 +96,8 @@ class Metrics:
             float: The NDCG at rank k.
         """
         relevance_scores = Metrics.calculate_relevance_scores(predictions, ground_truth)
-        return Metrics.dcg(relevance_scores, k) / Metrics.idcg(relevance_scores, k)
+        dcg_score = Metrics.dcg(relevance_scores, k)
+        idcg_score = Metrics.idcg(relevance_scores, k)
+        if idcg_score == 0:
+            return 0.0
+        return dcg_score / idcg_score
