@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     data_dir: str
     output_dir: str
     log_dir: str
+    models_cache_dir: str
     
 load_dotenv()
 settings = Settings()
