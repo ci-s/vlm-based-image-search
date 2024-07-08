@@ -100,6 +100,8 @@ class Metrics:
             float: The NDCG at rank k.
         """
         relevance_scores = Metrics.calculate_relevance_scores(predictions, ground_truth)
-        if Metrics.idcg(relevance_scores, k) == 0:
+        dcg_score = Metrics.dcg(relevance_scores, k)
+        idcg_score = Metrics.idcg(relevance_scores, k)
+        if idcg_score == 0:
             return 0.0
-        return Metrics.dcg(relevance_scores, k) / Metrics.idcg(relevance_scores, k)
+        return dcg_score / idcg_score
