@@ -37,7 +37,7 @@ git_image_representions = ImageRepresentations(filenames=list(git_predicted_file
 git_ss = SearchService(image_representations=git_image_representions, encoder_model=encoder_model, k=k_default)
 
 # define another search service i.e for CLIP, change image representations
-clip_root = "/storage/group/dataset_mirrors/old_common_datasets/coco2017/coco_val17/val2017"
+coco_root = "/storage/group/dataset_mirrors/old_common_datasets/coco2017/coco_val17/val2017"
 clip_image_path = os.path.join(settings.output_dir, "image_mscoco_CLIP_500_first.pth")
 data_util = DataUtilizer("")
 clip_image_repr = data_util.load_texts_embeddings(clip_image_path).cpu()
@@ -55,19 +55,19 @@ gt_ss = SearchService(gt_image_captions, encoder_model, k=k_default)
 # We can customize this function to use different models
 def llava_search(query, k, threshold):
     retrieved_files, captions, scores = llava_ss.search_and_caption(query, k, threshold, return_url=False)
-    return [(os.path.join(coco_path, file), format_score(score)+" "+caption) for file, caption, score in zip(retrieved_files, captions, scores)]
+    return [(os.path.join(coco_root, file), format_score(score)+" "+caption) for file, caption, score in zip(retrieved_files, captions, scores)]
 
 def git_search(query, k, threshold):
     retrieved_files, captions, scores = git_ss.search_and_caption(query, k, threshold, return_url=False)
-    return [(os.path.join(coco_path, file), format_score(score)+" "+caption) for file, caption, score in zip(retrieved_files, captions, scores)]
+    return [(os.path.join(coco_root, file), format_score(score)+" "+caption) for file, caption, score in zip(retrieved_files, captions, scores)]
 
 def clip_search(query, k, threshold):
     retrieved_files, scores = clip_ss.search_and_score(get_text_embedding([query]), k, threshold, return_url=False)
-    return [(os.path.join(clip_root, file), format_score(score)) for file, score in zip(retrieved_files, scores)] # No captions for this option
+    return [(os.path.join(coco_root, file), format_score(score)) for file, score in zip(retrieved_files, scores)] # No captions for this option
 
 def gt_search(query, k, threshold):
     retrieved_files, captions, scores = gt_ss.search_and_caption(query, k, threshold, return_url=False)
-    return [(os.path.join(coco_path, file), format_score(score)+" "+caption) for file, caption, score in zip(retrieved_files, captions, scores)]
+    return [(os.path.join(coco_root, file), format_score(score)+" "+caption) for file, caption, score in zip(retrieved_files, captions, scores)]
 
 def search(model_name, query, k, threshold):
     if model_name == "LLaVa":
@@ -86,20 +86,36 @@ with gr.Blocks() as demo:
         with gr.Column(scale=1):
             model_choices = gr.CheckboxGroup(choices=["LLaVa", "CLIP", "GIT", "Ground Truth"], label="Select models")
             query = gr.Textbox(label="Enter your query here")
-
+            mode = gr.Radio(
+                choices=["k", "threshold"], 
+                label="Choose search mode"
+            )
+            k_slider = gr.Slider(
+                1, 50, step=1, label="Select k", visible=False
+            )
+            threshold_slider = gr.Slider(
+                0.05, 0.95, step=0.01, label="Select threshold", visible=False
+            )
             submit_button = gr.Button("Submit")
             
+        def update_visibility(mode):
+            if mode == "k":
+                return gr.update(visible=True), gr.update(visible=False)
+            elif mode == "threshold":
+                return gr.update(visible=False), gr.update(visible=True)
             
-        @gr.render(inputs=[model_choices, query], triggers=[submit_button.click])
-        def show(model_choices, query):
+        mode.change(fn=update_visibility, inputs=mode, outputs=[k_slider, threshold_slider])  
+              
+        @gr.render(inputs=[model_choices, query, mode, k_slider, threshold_slider], triggers=[submit_button.click])
+        def show(model_choices, query, mode, k_slider, threshold_slider):
             with gr.Column(scale=2):
+                if mode == "k":
+                    threshold_slider = None 
+                if mode == "threshold":
+                    k_slider = None
                 for choice in model_choices:
-                    results = search(choice, query, k, threshold)
-                    gr.Markdown(
-                        f"""
-                        \n# {choice} results\n
-                        """
-                    )
+                    results = search(choice, query, k_slider, threshold_slider)
+                    gr.Markdown(f"\n# {choice} results\n")
                     gr.Gallery(value=results, columns=4, label=f"Retrieved images from {choice}", show_label=True)
 
 
