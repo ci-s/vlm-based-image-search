@@ -82,10 +82,10 @@ def search(model_name, query, k, threshold):
 k, threshold = None, None
 
 with gr.Blocks() as demo:
-    with gr.Row():
+    with gr.Column():
         with gr.Column(scale=1):
             model_choices = gr.CheckboxGroup(choices=["LLaVa", "CLIP", "GIT", "Ground Truth"], label="Select models")
-            query = gr.Textbox(label="Enter your query here")
+            query = gr.Textbox(label="Enter your query here", scale = 1)
             mode = gr.Radio(
                 choices=["k", "threshold"], 
                 label="Choose search mode"
@@ -96,7 +96,7 @@ with gr.Blocks() as demo:
             threshold_slider = gr.Slider(
                 0.05, 0.95, step=0.01, label="Select threshold", visible=False
             )
-            submit_button = gr.Button("Submit")
+            submit_button = gr.Button("Submit",scale = 1)
             
         def update_visibility(mode):
             if mode == "k":
@@ -104,19 +104,30 @@ with gr.Blocks() as demo:
             elif mode == "threshold":
                 return gr.update(visible=False), gr.update(visible=True)
             
-        mode.change(fn=update_visibility, inputs=mode, outputs=[k_slider, threshold_slider])  
-              
+        mode.change(fn=update_visibility, inputs=mode, outputs=[k_slider, threshold_slider])        
         @gr.render(inputs=[model_choices, query, mode, k_slider, threshold_slider], triggers=[submit_button.click])
         def show(model_choices, query, mode, k_slider, threshold_slider):
-            with gr.Column(scale=2):
+            num_models = len(model_choices)
+            if num_models == 0:
+                return gr.Markdown("Please select at least one model to display results.")
+            col_num = 6
+            min_col = 2
+            columns_per_model = max(col_num // num_models, min_col)
+            
+            with gr.Row():
                 if mode == "k":
                     threshold_slider = None 
                 if mode == "threshold":
                     k_slider = None
+                result_areas = []
                 for choice in model_choices:
                     results = search(choice, query, k_slider, threshold_slider)
-                    gr.Markdown(f"\n# {choice} results\n")
-                    gr.Gallery(value=results, columns=4, label=f"Retrieved images from {choice}", show_label=True)
+                    with gr.Column():
+                        result_areas.append(
+                            gr.Column([gr.Markdown(f"\n# {choice} results\n"),
+                            gr.Gallery(value=results, columns=min(columns_per_model, len(results)), label=f"Results for {choice}")]))
+                    
+                return gr.Row(result_areas)
 
 
 # Run the interface
