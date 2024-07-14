@@ -1,5 +1,6 @@
 import faiss
 from typing import Any, List
+import numpy as np
 
 class FaissService:
     def __init__(self, encoder_model): # encoder_model is either an instance of SentenceTransformer or CLIP or None = because directly query embeddings will be provided to search with
@@ -10,7 +11,15 @@ class FaissService:
         self.index = None
 
     def _encode_sentences(self, sentences):
-        sentence_embeddings = self.encoder_model.encode(sentences, normalize_embeddings=True)
+        # check if a sentence has the letter / which indicated avg_embedding method
+        # and then take the average of the embeddings among splitted sentences
+        if '/' in sentences[0]:
+            sentence_embeddings = []
+            for sentence in sentences:
+                sentence_embeddings.append(self.encoder_model.encode(sentence.split('/'), normalize_embeddings=True).mean(axis=0))  
+            sentence_embeddings = np.array(sentence_embeddings)
+        else:
+            sentence_embeddings = self.encoder_model.encode(sentences, normalize_embeddings=True)
         return sentence_embeddings
 
     def create_index(self, image_representation: List[Any]):
