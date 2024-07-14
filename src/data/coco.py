@@ -6,7 +6,7 @@ import sys
 sys.path.append("../")
 from services.settings import settings
 
-captions_path = os.path.join(settings.data_dir, "coco-images/annotations/captions_val2017.json")
+captions_path = os.path.join(settings.data_dir, "coco/annotations/captions_val2017.json")
 # instances_path = "../../data/coco/annotations/instances_val2017.json"
 coco_url_prefix = "http://images.cocodataset.org/val2017/"
 
