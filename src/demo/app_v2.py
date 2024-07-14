@@ -21,8 +21,11 @@ coco_path = os.path.join(settings.data_dir, "coco/images/val2017/")
 k_default = 10
 mode = "random"
 
+REPRESENTATION_FILENAME = "demo_{model_name}_representations_5000"
+FILENAMES_FILENAME = "demo_clip_filenames_5000.json"
+
 # LLAVA
-llava_caption_path = os.path.join(settings.output_dir, "response_dict.json") # format-> filename:caption
+llava_caption_path = os.path.join(settings.output_dir, REPRESENTATION_FILENAME.format(model_name="llava")+".json") # format-> filename:caption
 llava_predicted_file = json.load(open(llava_caption_path))
 
 llava_image_representions = ImageRepresentations(filenames=list(llava_predicted_file.keys()), representations=list(llava_predicted_file.values()), url_prefix="http://images.cocodataset.org/val2017/")
@@ -31,17 +34,17 @@ encoder_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2', ca
 llava_ss = SearchService(image_representations=llava_image_representions, encoder_model=encoder_model, k=k_default) #threshold=0.3
 
 # GIT
-git_caption_path = os.path.join(settings.output_dir, "response_dict_git_500.json") 
+git_caption_path = os.path.join(settings.output_dir, REPRESENTATION_FILENAME.format(model_name="git")+".json") 
 git_predicted_file = json.load(open(git_caption_path))
 git_image_representions = ImageRepresentations(filenames=list(git_predicted_file.keys()), representations=list(git_predicted_file.values()), url_prefix="http://images.cocodataset.org/val2017/")
 git_ss = SearchService(image_representations=git_image_representions, encoder_model=encoder_model, k=k_default)
 
 # define another search service i.e for CLIP, change image representations
 coco_root = "/storage/group/dataset_mirrors/old_common_datasets/coco2017/coco_val17/val2017"
-clip_image_path = os.path.join(settings.output_dir, "image_mscoco_CLIP_500_first.pth")
+clip_image_path = os.path.join(settings.output_dir, REPRESENTATION_FILENAME.format(model_name="clip")+".pth")
 data_util = DataUtilizer("")
 clip_image_repr = data_util.load_texts_embeddings(clip_image_path).cpu()
-clip_filename_path = os.path.join(settings.output_dir, "filenames_clip.json")
+clip_filename_path = os.path.join(settings.output_dir, FILENAMES_FILENAME)
 clip_filenames = data_util.load_json_file(clip_filename_path)
 clip_image_representations = ImageRepresentations(clip_filenames, clip_image_repr, url_prefix="http://images.cocodataset.org/val2017/")
 
