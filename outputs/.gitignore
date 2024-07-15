@@ -1,2 +1,8 @@
 *
 !/.gitignore
+
+#todo don't ignore specific files
+!demo_llava_representations_5000.json
+!demo_git_representations_5000.json
+!demo_clip_representations_5000.pth
+!demo_clip_filenames_5000.json
