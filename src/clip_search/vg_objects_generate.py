@@ -65,57 +65,57 @@ for model_n in model_names:
     emb_dict[model_n] = torch.stack([tensor for idx, tensor in enumerate(embd) if idx not in remove_list])
 
 
-# for model_n in tqdm(model_names):
-#     model = SearchModel(model_n).get_model()
-#     text_embed = model.encode_text_list(list(adjusted_roots.keys()))
-#     index = data_util.create_index(emb_dict[model_n])
-#     eval = evaluate_objects(index, text_embed, torch.tensor(list(object_presence.values())))
-#     df = pd.DataFrame(eval)
-#     print(df)
-#     df.to_csv(os.path.join(output_dir, model_n + "_transposed_visual_genome_results_3.csv"))
-#     df = df.transpose()
-#     df.to_csv(os.path.join(output_dir, model_n + "_visual_genome_results_3.csv"))
-
-model_name = 'tuner007/pegasus_paraphrase'
-model_paraph= PegasusForConditionalGeneration.from_pretrained(model_name)
-tokenizer = PegasusTokenizer.from_pretrained(model_name)
-@torch.no_grad()
-def take_average(text_embedding, caption_per_image):
-    n = len(text_embedding)
-    image_n = n // caption_per_image
-    flattened_embeddings = torch.cat(text_embedding, dim=0)
-    print(f"length of flattened : {flattened_embeddings.shape}")
-    view_emb = flattened_embeddings.view(image_n, caption_per_image, -1)
-    average_embeddings = view_emb.mean(axis=1)
-    return average_embeddings
-
-def generate_paraphrase_pegasus(original_sentence):
-    input_text = tokenizer(original_sentence, truncation=True, padding='longest', return_tensors="pt")
-    outputs = model_paraph.generate(**input_text, max_length=60, num_return_sequences=3)
-    dout = [tokenizer.decode(outputs[i], skip_special_tokens=True) for i in range(3)]
-    # return " ".join(dout)
-    return dout
-
-
 for model_n in tqdm(model_names):
     model = SearchModel(model_n).get_model()
-    texts = []
-    texts.extend([sent for keys in adjusted_roots.keys() for sent in generate_paraphrase_pegasus(keys)])
-    text_embed = []
-    batch_size = 50
-    text_len = len(texts)
-    iteration = text_len // batch_size + 1
-    for i in range(iteration):
-        text_embed.extend(model.encode_text_list(texts[i*batch_size  :min(text_len, (i+1) * batch_size)]))
-    # text_embed = model.encode_text_list(texts)
-    text_embed = take_average(text_embed, 3)
+    text_embed = model.encode_text_list(list(adjusted_roots.keys()))
     index = data_util.create_index(emb_dict[model_n])
     eval = evaluate_objects(index, text_embed, torch.tensor(list(object_presence.values())))
     df = pd.DataFrame(eval)
     print(df)
-    df.to_csv(os.path.join(output_dir, model_n + "_transposed_visual_genome_results_4.csv"))
+    df.to_csv(os.path.join(output_dir, model_n + "_transposed_visual_genome_results_3.csv"))
     df = df.transpose()
-    df.to_csv(os.path.join(output_dir, model_n + "_visual_genome_results_4.csv"))
+    df.to_csv(os.path.join(output_dir, model_n + "_visual_genome_results_3.csv"))
+
+# model_name = 'tuner007/pegasus_paraphrase'
+# model_paraph= PegasusForConditionalGeneration.from_pretrained(model_name)
+# tokenizer = PegasusTokenizer.from_pretrained(model_name)
+# @torch.no_grad()
+# def take_average(text_embedding, caption_per_image):
+#     n = len(text_embedding)
+#     image_n = n // caption_per_image
+#     flattened_embeddings = torch.cat(text_embedding, dim=0)
+#     print(f"length of flattened : {flattened_embeddings.shape}")
+#     view_emb = flattened_embeddings.view(image_n, caption_per_image, -1)
+#     average_embeddings = view_emb.mean(axis=1)
+#     return average_embeddings
+
+# def generate_paraphrase_pegasus(original_sentence):
+#     input_text = tokenizer(original_sentence, truncation=True, padding='longest', return_tensors="pt")
+#     outputs = model_paraph.generate(**input_text, max_length=60, num_return_sequences=3)
+#     dout = [tokenizer.decode(outputs[i], skip_special_tokens=True) for i in range(3)]
+#     # return " ".join(dout)
+#     return dout
+
+
+# for model_n in tqdm(model_names):
+#     model = SearchModel(model_n).get_model()
+#     texts = []
+#     texts.extend([sent for keys in adjusted_roots.keys() for sent in generate_paraphrase_pegasus(keys)])
+#     text_embed = []
+#     batch_size = 50
+#     text_len = len(texts)
+#     iteration = text_len // batch_size + 1
+#     for i in range(iteration):
+#         text_embed.extend(model.encode_text_list(texts[i*batch_size  :min(text_len, (i+1) * batch_size)]))
+#     # text_embed = model.encode_text_list(texts)
+#     text_embed = take_average(text_embed, 3)
+#     index = data_util.create_index(emb_dict[model_n])
+#     eval = evaluate_objects(index, text_embed, torch.tensor(list(object_presence.values())))
+#     df = pd.DataFrame(eval)
+#     print(df)
+#     df.to_csv(os.path.join(output_dir, model_n + "_transposed_visual_genome_results_4.csv"))
+#     df = df.transpose()
+#     df.to_csv(os.path.join(output_dir, model_n + "_visual_genome_results_4.csv"))
 
 
     
