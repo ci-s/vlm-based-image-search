@@ -18,7 +18,7 @@ The project is organized as follows:
     ├── data         # Data related methods/scripts
     ├── demo         # Demo resides here!
     ├── eval         # Evaluation methods/scripts
-    ├── gi2t         # CLIP related methods/scripts
+    ├── gi2t         # GIT related methods/scripts
     ├── services     # FAISS, embedding creation, settings etc.
     └── vlm          # LLaVa related methods/scripts
 
@@ -41,3 +41,8 @@ Note: The files are explained in the order one should follow to run experiments
 To reproduce experiment results (or see output cells) with the fixed query set:
 - coco_experiment_all.ipynb : Individual experiment with the aggregation methods (avg embed., avg. score, highest score)
 - coco_experiment_index.ipynb : Common experiment with the aggregation methods (first, random, concat)
+## CLIP important files
+- evaluate_multimodal.py: contains evaluation of multimodal search
+- generate_images.py: images are generated using stable diffusion
+- pseudo_images.py: create embeddings for generated images
+- vg_objects.py: evaluate retrieving detected objects in visual genome dataset
