@@ -32,7 +32,9 @@ def main(args):
     embedder = SentenceTransformer('all-MiniLM-L6-v2')
     embeddings = []
 
-    for image_id in image_ids:
+    for counter, image_id in enumerate(image_ids):
+        if counter % 100 == 0:
+            print(f'Processing image {counter}')
         captions = get_image_captions(coco, image_id)[:5] # Image with id 96493 has 6 captions, skipped extra caption just to keep the array dim simpler
             
         if args.average:

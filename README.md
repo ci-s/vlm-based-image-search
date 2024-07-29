@@ -32,3 +32,12 @@ The project is organized as follows:
 ## LLaVa important files
 - src/vlm/create_captions.py: Creates captions with LLaVa, requires SLURM
 - src/eval/llava_eval.py: Receives predicted captions (json -> filename, caption) and calculates a large table containing all base experiments
+
+## GIT important files
+Note: The files are explained in the order one should follow to run experiments
+- coco_processor.py: Creates embeddings for COCO images in desired size (also saves IDs), sample command given inside the file.
+- git_create_caption.py: Create and save captions for the COCO images given by saved ID file (by coco_processor.py)
+- make_response.ipynb : Creates and saves the dictionary (filename:caption) from saved captions, to later use in demo
+To reproduce experiment results (or see output cells) with the fixed query set:
+- coco_experiment_all.ipynb : Individual experiment with the aggregation methods (avg embed., avg. score, highest score)
+- coco_experiment_index.ipynb : Common experiment with the aggregation methods (first, random, concat)
